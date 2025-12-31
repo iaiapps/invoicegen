@@ -18,7 +18,7 @@ class SubscriptionController extends Controller
         $user = Auth::user();
 
         // Get prices from platform settings
-        $freeInvoiceLimit = getSetting('free_invoice_limit', 20);
+        $freeInvoiceLimit = getSetting('free_invoice_limit', 30);
         $basicPrice = getSetting('basic_price', 25000);
         $basicInvoiceLimit = getSetting('basic_invoice_limit', 60);
         $proPrice = getSetting('pro_price', 49000);
@@ -108,12 +108,6 @@ class SubscriptionController extends Controller
             $pendingExpireDays = (int) getSetting('pending_expire_days', 7);
             $pendingExpiresAt = $pendingSubscription->created_at->addDays($pendingExpireDays);
         }
-
-        // Calculate days remaining (only for paid plans)
-        // $daysRemaining = null;
-        // if (!$currentPlan['is_free'] && $currentPlan['expires_at']) {
-        //     $daysRemaining = now()->diffInDays($currentPlan['expires_at'], false);
-        // }
 
         // Bank account info for manual payment (from platform settings)
         $bankAccounts = [];
