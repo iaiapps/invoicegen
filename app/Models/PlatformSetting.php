@@ -26,7 +26,7 @@ class PlatformSetting extends Model
     {
         return Cache::remember("platform_setting_{$key}", 3600, function () use ($key, $default) {
             $setting = self::where('key', $key)->first();
-            
+
             if (!$setting) {
                 return $default;
             }
@@ -49,7 +49,8 @@ class PlatformSetting extends Model
         );
 
         Cache::forget("platform_setting_{$key}");
-        
+        Cache::forget('all_platform_settings');
+
         return $setting;
     }
 

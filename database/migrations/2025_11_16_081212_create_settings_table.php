@@ -20,6 +20,7 @@ return new class extends Migration
 
             // Indexes
             $table->index('user_id');
+            $table->index('setting_key');
             $table->unique(['user_id', 'setting_key']);
         });
     }
