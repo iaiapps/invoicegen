@@ -164,7 +164,7 @@
             color: white;
             padding: 12px;
             margin-top: 10px;
-            /* border-radius: 4px; */
+            border-radius: 4px;
         }
 
         .notes {
