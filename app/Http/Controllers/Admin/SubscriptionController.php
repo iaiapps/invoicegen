@@ -61,7 +61,6 @@ class SubscriptionController extends Controller
      */
     public function approve(Request $request, Subscription $subscription)
     {
-        // dd($request->all());
         if ($subscription->payment_status !== 'pending') {
             return redirect()->back()
                 ->with('error', 'Subscription ini tidak dalam status pending.');

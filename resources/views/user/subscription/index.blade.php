@@ -5,6 +5,32 @@
 @section('page-description', 'Upgrade paket untuk meningkatkan limit invoice')
 
 @section('content')
+    <!-- Pending Subscription Alert -->
+    @if ($pendingSubscription)
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                <div class="alert alert-info" style="margin: 0; border-left: 4px solid hsl(220 90% 56%);">
+                    <div style="display: flex; align-items: start; gap: 1rem;">
+                        <i class="bi bi-clock-history" style="font-size: 1.5rem; color: hsl(220 90% 56%);"></i>
+                        <div style="flex: 1;">
+                            <strong>Permintaan Upgrade Sedang Diproses</strong>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem;">
+                                Paket <strong>{{ ucfirst($pendingSubscription->plan) }}</strong> •
+                                Rp {{ number_format($pendingSubscription->amount, 0, ',', '.') }} •
+                                Menunggu verifikasi admin
+                            </p>
+                            <small style="color: hsl(215 16% 47%);">
+                                <i class="bi bi-info-circle"></i>
+                                Permintaan akan otomatis dibatalkan pada:
+                                <strong>{{ $pendingExpiresAt->format('d M Y, H:i') }}</strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Alert System -->
     @php
         $showAlert = false;

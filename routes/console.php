@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule: Check expired subscriptions daily at 1 AM
 Schedule::command('subscription:check-expired')->dailyAt('01:00');
+
+// Schedule: Auto-expire pending subscriptions daily at 2 AM
+Schedule::command('subscription:expire-pending')->dailyAt('02:00');

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\User;
 
-use Carbon\Carbon;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -91,11 +90,23 @@ class SubscriptionController extends Controller
             ],
         ];
 
-        // Subscription history
+        // Subscription history (exclude expired/auto-canceled)
         $subscriptionHistory = Subscription::where('user_id', $user->id)
+            ->whereIn('payment_status', ['pending', 'paid', 'failed'])
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
+
+        // Get pending subscription info (for warning message)
+        $pendingSubscription = Subscription::where('user_id', $user->id)
+            ->where('payment_status', 'pending')
+            ->latest()
+            ->first();
+
+        $pendingExpiresAt = null;
+        if ($pendingSubscription) {
+            $pendingExpiresAt = $pendingSubscription->created_at->addDays(7);
+        }
 
         // Calculate days remaining (only for paid plans)
         // $daysRemaining = null;
@@ -149,7 +160,8 @@ class SubscriptionController extends Controller
             'currentPlan',
             'plans',
             'subscriptionHistory',
-            // 'daysRemaining',
+            'pendingSubscription',
+            'pendingExpiresAt',
             'bankAccounts'
         ));
     }
@@ -199,8 +211,16 @@ class SubscriptionController extends Controller
 
         DB::beginTransaction();
         try {
-            // Create subscription record with pending status
-            $subscription = Subscription::create([
+            // Auto-cancel previous pending subscriptions
+            $canceledCount = Subscription::where('user_id', $user->id)
+                ->where('payment_status', 'pending')
+                ->update([
+                    'payment_status' => 'expired',
+                    'payment_response' => 'Auto-canceled: User requested new upgrade',
+                ]);
+
+            // Create new subscription record with pending status
+            Subscription::create([
                 'user_id' => $user->id,
                 'plan' => $plan,
                 'amount' => $selectedPlan['price'],
@@ -215,8 +235,14 @@ class SubscriptionController extends Controller
 
             DB::commit();
 
+            $message = "Permintaan upgrade ke paket {$selectedPlan['name']} berhasil dikirim! Silakan transfer sebesar Rp " . number_format($selectedPlan['price'], 0, ',', '.') . " dan tunggu verifikasi dalam 1x24 jam.";
+
+            if ($canceledCount > 0) {
+                $message .= " Permintaan upgrade sebelumnya telah dibatalkan otomatis.";
+            }
+
             return redirect()->route('subscription.index')
-                ->with('success', "Permintaan upgrade ke paket {$selectedPlan['name']} berhasil dikirim! Silakan transfer sebesar Rp " . number_format($selectedPlan['price'], 0, ',', '.') . " dan tunggu verifikasi dalam 1x24 jam.");
+                ->with('success', $message);
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
