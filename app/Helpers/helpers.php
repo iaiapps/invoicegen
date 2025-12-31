@@ -243,7 +243,8 @@ if (!function_exists('generateInvoiceNumber')) {
     {
         $date = now()->format('Ym');
         $lastInvoice = \App\Models\Invoice::where('user_id', $userId)
-            ->whereRaw('DATE_FORMAT(created_at, "%Y%m") = ?', [$date])
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->latest('id')
             ->first();
 

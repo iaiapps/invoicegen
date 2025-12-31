@@ -23,11 +23,13 @@ Auth::routes();
 // Landing Page
 Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('landing');
 
-// Public Invoice View (No Auth Required)
-Route::get('/invoice/{unique_id}', [InvoiceController::class, 'publicView'])
-    ->name('invoice.public');
-Route::get('/invoice/{unique_id}/pdf', [InvoiceController::class, 'downloadPdf'])
-    ->name('invoice.pdf');
+// Public Invoice View (No Auth Required) - Rate limited: 60 requests/minute
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/invoice/{unique_id}', [InvoiceController::class, 'publicView'])
+        ->name('invoice.public');
+    Route::get('/invoice/{unique_id}/pdf', [InvoiceController::class, 'downloadPdf'])
+        ->name('invoice.pdf');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -77,13 +79,13 @@ Route::middleware('auth')->group(function () {
     Route::group(['middleware' => ['role:user', 'check.subscription']], function () {
         // Invoices Management - Index
         Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-        
+
         // Invoice Create/Store with limit check - MUST BE BEFORE {invoice} routes
         Route::middleware('check.invoice.limit')->group(function () {
             Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
             Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
         });
-        
+
         // Invoice View/Edit/Delete
         Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
         Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');

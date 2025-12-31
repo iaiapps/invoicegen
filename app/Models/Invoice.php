@@ -94,7 +94,8 @@ class Invoice extends Model
     {
         $date = now()->format('Ym');
         $lastInvoice = static::where('user_id', $userId)
-            ->whereRaw('DATE_FORMAT(created_at, "%Y%m") = ?', [$date])
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
             ->latest('id')
             ->first();
 

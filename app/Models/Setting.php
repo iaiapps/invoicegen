@@ -11,73 +11,63 @@ class Setting extends Model
     use HasFactory;
 
     protected $fillable = [
-        'key',
-        'value',
-        'type',
-        'description',
+        'user_id',
+        'setting_key',
+        'setting_value',
     ];
 
     /**
-     * Get setting value by key
+     * Get setting value by key for specific user
      */
-    public static function get($key, $default = null)
+    public static function getValue($userId, $key, $default = null)
     {
-        return Cache::remember("setting_{$key}", 3600, function () use ($key, $default) {
-            $setting = self::where('key', $key)->first();
-            
-            if (!$setting) {
-                return $default;
-            }
+        return Cache::remember("user_setting_{$userId}_{$key}", 3600, function () use ($userId, $key, $default) {
+            $setting = self::where('user_id', $userId)
+                ->where('setting_key', $key)
+                ->first();
 
-            return self::castValue($setting->value, $setting->type);
+            return $setting ? $setting->setting_value : $default;
         });
     }
 
     /**
-     * Set setting value
+     * Set setting value for specific user
      */
-    public static function set($key, $value, $type = 'string')
+    public static function setValue($userId, $key, $value)
     {
         $setting = self::updateOrCreate(
-            ['key' => $key],
-            [
-                'value' => is_array($value) ? json_encode($value) : $value,
-                'type' => $type,
-            ]
+            ['user_id' => $userId, 'setting_key' => $key],
+            ['setting_value' => is_array($value) ? json_encode($value) : $value]
         );
 
-        Cache::forget("setting_{$key}");
-        
+        Cache::forget("user_setting_{$userId}_{$key}");
+        Cache::forget("user_all_settings_{$userId}");
+
         return $setting;
     }
 
     /**
-     * Cast value based on type
+     * Get all settings for specific user as array
      */
-    protected static function castValue($value, $type)
+    public static function getAllForUser($userId)
     {
-        return match ($type) {
-            'integer' => (int) $value,
-            'boolean' => (bool) $value,
-            'json' => json_decode($value, true),
-            default => $value,
-        };
-    }
-
-    /**
-     * Get all settings as array
-     */
-    public static function getAllSettings()
-    {
-        return Cache::remember('all_settings', 3600, function () {
-            $settings = self::query()->get();
+        return Cache::remember("user_all_settings_{$userId}", 3600, function () use ($userId) {
+            $settings = self::where('user_id', $userId)->get();
             $result = [];
 
             foreach ($settings as $setting) {
-                $result[$setting->key] = self::castValue($setting->value, $setting->type);
+                $result[$setting->setting_key] = $setting->setting_value;
             }
 
             return $result;
         });
+    }
+
+    /**
+     * Relationship to user
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
