@@ -1,11 +1,98 @@
+###############################################################################
+# DEFAULT
+###############################################################################
 * text=auto eol=lf
 
+###############################################################################
+# DIFF HELPERS (for better git diff)
+###############################################################################
 *.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+*.css       diff=css
+*.html      diff=html
+*.md        diff=markdown
+*.php       diff=php
+*.js        diff=javascript
+*.ts        diff=typescript
+*.vue       diff=html
+*.py        diff=python
+*.sh        diff=bash
 
+###############################################################################
+# BACKEND
+###############################################################################
+*.php   text eol=lf
+*.py    text eol=lf
+*.sh    text eol=lf
+*.bash  text eol=lf
+*.env   text eol=lf
+
+###############################################################################
+# FRONTEND
+###############################################################################
+*.js    text eol=lf
+*.ts    text eol=lf
+*.vue   text eol=lf
+*.css   text eol=lf
+*.scss  text eol=lf
+*.html  text eol=lf
+
+###############################################################################
+# CONFIG & DATA
+###############################################################################
+*.json        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.xml         text eol=lf
+*.ini         text eol=lf
+*.conf        text eol=lf
+*.toml        text eol=lf
+*.properties  text eol=lf
+*.lock        text eol=lf
+
+###############################################################################
+# DOCUMENTATION
+###############################################################################
+*.md    text eol=lf
+*.txt   text eol=lf
+
+###############################################################################
+# BUILD / CI / DEVOPS
+###############################################################################
+Dockerfile      text eol=lf
+*.dockerfile    text eol=lf
+*.env.example   text eol=lf
+*.gitignore     text eol=lf
+*.gitattributes text eol=lf
+*.editorconfig  text eol=lf
+*.npmrc         text eol=lf
+*.yarnrc        text eol=lf
+*.pnpmrc        text eol=lf
+*.sh            text eol=lf
+*.bat           text eol=lf
+
+###############################################################################
+# BINARY FILES (DO NOT TOUCH LINE ENDINGS)
+###############################################################################
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.svg   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.7z    binary
+*.mp3   binary
+*.mp4   binary
+*.woff  binary
+*.woff2 binary
+
+###############################################################################
+# ARCHIVE / EXPORT
+###############################################################################
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
