@@ -105,7 +105,8 @@ class SubscriptionController extends Controller
 
         $pendingExpiresAt = null;
         if ($pendingSubscription) {
-            $pendingExpiresAt = $pendingSubscription->created_at->addDays(7);
+            $pendingExpireDays = (int) getSetting('pending_expire_days', 7);
+            $pendingExpiresAt = $pendingSubscription->created_at->addDays($pendingExpireDays);
         }
 
         // Calculate days remaining (only for paid plans)

@@ -28,9 +28,12 @@ class AutoExpirePendingSubscriptions extends Command
     {
         $this->info('Checking pending subscriptions older than 7 days...');
 
-        // Find pending subscriptions older than 7 days
+        // Get auto-expire days from platform settings (default 7 days)
+        $expireDays = (int) \App\Models\PlatformSetting::get('pending_expire_days', 7);
+
+        // Find pending subscriptions older than configured days
         $expiredPending = Subscription::where('payment_status', 'pending')
-            ->where('created_at', '<', now()->subDays(7))
+            ->where('created_at', '<', now()->subDays($expireDays))
             ->get();
 
         $count = 0;
@@ -38,7 +41,7 @@ class AutoExpirePendingSubscriptions extends Command
         foreach ($expiredPending as $subscription) {
             $subscription->update([
                 'payment_status' => 'expired',
-                'payment_response' => 'Auto-expired: No payment received within 7 days',
+                'payment_response' => "Auto-expired: No payment received within {$expireDays} days",
             ]);
 
             $this->line("✓ Expired pending subscription: {$subscription->payment_reference} (User: {$subscription->user->email})");

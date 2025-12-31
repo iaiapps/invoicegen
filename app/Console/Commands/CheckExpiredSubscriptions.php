@@ -28,10 +28,14 @@ class CheckExpiredSubscriptions extends Command
     {
         $this->info('Checking expired subscriptions...');
 
+        // Get grace period from platform settings
+        $gracePeriodDays = (int) \App\Models\PlatformSetting::get('grace_period_days', 7);
+        $freeInvoiceLimit = (int) \App\Models\PlatformSetting::get('free_invoice_limit', 30);
+
         // Find users with expired subscriptions that passed grace period
         $usersToDowngrade = User::where('subscription_plan', '!=', 'free')
             ->whereNotNull('subscription_ends_at')
-            ->where('subscription_ends_at', '<', now()->subDays(7))
+            ->where('subscription_ends_at', '<', now()->subDays($gracePeriodDays))
             ->get();
 
         $count = 0;
@@ -40,7 +44,7 @@ class CheckExpiredSubscriptions extends Command
             // Auto downgrade to free
             $user->update([
                 'subscription_plan' => 'free',
-                'invoice_limit' => 30,
+                'invoice_limit' => $freeInvoiceLimit,
                 'subscription_ends_at' => null,
             ]);
 

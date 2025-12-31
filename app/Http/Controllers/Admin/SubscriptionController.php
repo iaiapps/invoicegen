@@ -81,6 +81,7 @@ class SubscriptionController extends Controller
             // Update subscription
             $subscription->update([
                 'payment_status' => 'paid',
+                'paid_at' => now(),
                 'starts_at' => $startsAt,
                 'ends_at' => $endsAt,
             ]);
@@ -91,6 +92,7 @@ class SubscriptionController extends Controller
                 'subscription_plan' => $subscription->plan,
                 'subscription_ends_at' => $endsAt,
                 'invoice_limit' => $subscription->invoice_limit,
+                'product_limit' => getProductLimit($subscription->plan),
             ]);
 
             DB::commit();
